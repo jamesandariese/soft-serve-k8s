@@ -1,0 +1,40 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: softserve
+resources:
+- https://github.com/jamesandariese/soft-serve-k8s
+patches:
+- patch: |-
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: softserve-config
+    data:
+      SOFT_SERVE_HTTP_PUBLIC_URL: "https://example.net/src"
+      SOFT_SERVE_SSH_PUBLIC_URL: "ssh://example.net"
+- target:
+    group: networking.k8s.io
+    version: v1
+    kind: Ingress
+    name: softserve
+  patch: |-
+    ## first, copy the template to as many as you need
+    - {op: "copy", path: "/spec/rules/1", from: "/spec/rules/0"}
+    ## then, delete the template
+    - {op: "remove", path: "/spec/rules/0"}
+
+    ## make your modifications
+    - op: replace
+      path: '/spec/rules/0/host'
+      value: 'example.net'
+    ##- op: replace
+    ##  path: '/spec/tls/0/secretName'
+    ##  value: 'example-tls'
+    #- op: replace
+    #  path: '/spec/tls/0/hosts'
+    #  value: ['example.net']
+    - op: replace
+      path: '/spec/tls'
+      value:
+      - hosts: ['example.net']
+        secretName: example-tls
