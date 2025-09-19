@@ -6,8 +6,12 @@ metadata:
     haproxy-ingress.github.io/rewrite-target: /
 spec:
   ingressClassName: haproxy
+  tls:
+  - hosts:
+    - "does.not.exist"
+    secretName: "softserve-tls"
   rules:
-  - host: strudelline.net
+  - host: does.not.exist
     http:
       paths:
       - path: /src

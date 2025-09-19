@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: softserve-config
 data:
-  SOFT_SERVE_HTTP_PUBLIC_URL: "https://strudelline.net/src"
-  SOFT_SERVE_SSH_PUBLIC_URL: "ssh://strudelline.net"
+  SOFT_SERVE_HTTP_PUBLIC_URL: "https://does.not.exist/src"
+  SOFT_SERVE_SSH_PUBLIC_URL: "ssh://does.not.exist"
