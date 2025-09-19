@@ -1,0 +1,19 @@
+#!/bin/bash
+
+cd "$(dirname "$0")"
+
+if [ -e ~/.ssh/softserve_admin_ed25519 ];then
+    1>&2 echo "~/.ssh/softserve_admin_ed25519 already exists"
+    exit 1
+fi
+
+NAMESPACE="$(kubectl create -k . --dry-run=client -o json | jq -r 'select(.kind == "Namespace").metadata.name')"
+
+umask 077
+kubectl get secret -n "$NAMESPACE" softserve-admin -o json | jq -r '.data."id_ed25519" | @base64d' > ~/.ssh/softserve_admin_ed25519
+
+>> ~/.ssh/config printf "%s\n" \
+"Host softserve-admin" \
+"    Hostname $(kubectl get svc softserve -o json | jq -r '.status.loadBalancer.ingress[].ip')" \
+"    IdentityFile ~/.ssh/softserve_admin_ed25519" \
+"    User admin"

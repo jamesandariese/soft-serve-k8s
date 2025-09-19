@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: softserve
+  name: softserve
+spec:
+  selector:
+    app: softserve
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: http
+  - name: ssh
+    protocol: TCP
+    port: 22
+    targetPort: ssh
+  - name: git
+    protocol: TCP
+    port: 9418
+    targetPort: git
+  type: LoadBalancer

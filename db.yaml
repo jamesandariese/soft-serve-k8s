@@ -1,0 +1,22 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: softserve-db
+spec:
+  instances: 1
+  bootstrap:
+    initdb:
+      database: softserve
+      owner: softserve
+
+  postgresql:
+    parameters:
+      pgaudit.log: "all"
+
+  storage:
+    size: 20Gi
+
+  monitoring:
+    enablePodMonitor: true
+

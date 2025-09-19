@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: softserve
+  annotations:
+    haproxy-ingress.github.io/rewrite-target: /
+spec:
+  ingressClassName: haproxy
+  rules:
+  - host: strudelline.net
+    http:
+      paths:
+      - path: /src
+        pathType: Prefix
+        backend:
+          service:
+            name: softserve
+            port:
+              number: 80

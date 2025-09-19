@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: softserve
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: softserve
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: softserve
+    spec:
+      hostname: git
+      containers:
+        - image: charmcli/soft-serve:latest
+          name: softserve
+          envFrom:
+          - configMapRef:
+              name: softserve-config
+          env:
+          - name: TZ
+            value: US/Eastern
+          - name: SOFT_SERVE_DATA_PATH
+            value: /data
+          - name: SOFT_SERVE_INITIAL_ADMIN_KEYS
+            valueFrom:
+              secretKeyRef:
+                name: softserve-admin
+                key: id_ed25519.pub
+          - name: SOFT_SERVE_HTTP_LISTEN_ADDR
+            value: ":80"
+          - name: SOFT_SERVE_GIT_LISTEN_ADDR
+            value: ":9418"
+          - name: SOFT_SERVE_SSH_LISTEN_ADDR
+            value: ":22"
+          - name: SOFT_SERVE_STATS_LISTEN_ADDR
+            value: ":23233"
+          - name: SOFT_SERVE_DB_DRIVER
+            value: "postgres"
+          - name: SOFT_SERVE_DB_DATA_SOURCE
+            valueFrom:
+              secretKeyRef:
+                name: softserve-db-app
+                key: uri
+          volumeMounts:
+          - name: softserve-data
+            mountPath: /data
+          ports:
+          - containerPort: 80
+            name: http
+            protocol: TCP
+          - containerPort: 9418
+            name: git
+            protocol: TCP
+          - containerPort: 22
+            name: ssh
+            protocol: TCP
+          - containerPort: 23233
+            name: stats
+            protocol: TCP
+          resources:
+            requests:
+              cpu: 100m 
+              memory: 256Mi
+      restartPolicy: Always
+      volumes:
+      - name: softserve-data
+        persistentVolumeClaim:
+          claimName: softserve-data
